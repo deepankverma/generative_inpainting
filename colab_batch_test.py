@@ -65,57 +65,66 @@ if __name__ == "__main__":
 
     print(args.flist)
 
+    k = 0
+
     for imagefile in glob.glob(args.flist):
 
         print(imagefile)
 
         # with open(args.flist, 'r') as f:
         #     lines = f.read().splitlines()
-        t = time.time()
+        # t = time.time()
         # for line in lines:
         # for i in range(100):
 
-        
-        image_name = imagefile.split("/")[-1]
-        mask_name = image_name.replace("ss_","")
-        print("mask_name========= ",  mask_name)
-        mask = "/content/masks/" + "mask_" + mask_name
-        print("mask========= ",  mask)
-        out = mask.split("/")[-1]
-        out = "/content/outputs/" + out
+        try:
 
-        # print("image==", image )
-        # print("mask_name==", mask_name )
-        # print("mask==", mask )
-        # print("out==", out )
+          print(k)
+          k+=1
+    
+          image_name = imagefile.split("/")[-1]
+          mask_name = image_name.replace("ss_","")
+          print("mask_name========= ",  mask_name)
+          mask = "/content/masks/" + "mask_" + mask_name
+          print("mask========= ",  mask)
+          out = mask.split("/")[-1]
+          out = "/content/outputs/" + out
 
-        # image, mask, out = line.split()
-        base = os.path.basename(mask)
+          # print("image==", image )
+          # print("mask_name==", mask_name )
+          # print("mask==", mask )
+          # print("out==", out )
 
-        image = cv2.imread(imagefile)
-        mask = cv2.imread(mask)
-        image = cv2.resize(image, (args.image_width, args.image_height))
-        mask = cv2.resize(mask, (args.image_width, args.image_height))
-        # cv2.imwrite(out, image*(1-mask/255.) + mask)
-        # # continue
-        # image = np.zeros((128, 256, 3))
-        # mask = np.zeros((128, 256, 3))
+          # image, mask, out = line.split()
+          base = os.path.basename(mask)
 
-        assert image.shape == mask.shape
+          image = cv2.imread(imagefile)
+          mask = cv2.imread(mask)
+          image = cv2.resize(image, (args.image_width, args.image_height))
+          mask = cv2.resize(mask, (args.image_width, args.image_height))
+          # cv2.imwrite(out, image*(1-mask/255.) + mask)
+          # # continue
+          # image = np.zeros((128, 256, 3))
+          # mask = np.zeros((128, 256, 3))
 
-        h, w, _ = image.shape
-        grid = 4
-        image = image[:h//grid*grid, :w//grid*grid, :]
-        mask = mask[:h//grid*grid, :w//grid*grid, :]
-        print('Shape of image: {}'.format(image.shape))
+          assert image.shape == mask.shape
 
-        image = np.expand_dims(image, 0)
-        mask = np.expand_dims(mask, 0)
-        input_image = np.concatenate([image, mask], axis=2)
+          h, w, _ = image.shape
+          grid = 4
+          image = image[:h//grid*grid, :w//grid*grid, :]
+          mask = mask[:h//grid*grid, :w//grid*grid, :]
+          print('Shape of image: {}'.format(image.shape))
 
-        # load pretrained model
-        result = sess.run(output, feed_dict={input_image_ph: input_image})
-        print('Processed: {}'.format(out))
-        cv2.imwrite(out, result[0][:, :, ::-1])
+          image = np.expand_dims(image, 0)
+          mask = np.expand_dims(mask, 0)
+          input_image = np.concatenate([image, mask], axis=2)
+
+          # load pretrained model
+          result = sess.run(output, feed_dict={input_image_ph: input_image})
+          print('Processed: {}'.format(out))
+          cv2.imwrite(out, result[0][:, :, ::-1])
+
+        except Exception as e:
+          print(str(e))
 
     # print('Time total: {}'.format(time.time() - t))
